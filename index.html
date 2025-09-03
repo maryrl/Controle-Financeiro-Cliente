@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Pagamentos - Clientes Maira</title>
+    <title>Controle de Pagamentos - Clientes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -21,8 +21,8 @@
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Header -->
         <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">💰 Controle de Pagamentos Maira</h1>
-        
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">💰 Controle de Pagamentos</h1>
+            <p class="text-gray-600">Gerencie entradas e saídas dos seus clientes de forma automática</p>
         </div>
 
         <!-- Navegação por Abas -->
@@ -34,6 +34,7 @@
                 <button id="tabTransacoes" class="flex-1 py-4 px-6 text-center font-semibold tab-inactive" onclick="trocarAba('transacoes')">
                     💳 Transações
                 </button>
+
                 <button id="tabRelatorios" class="flex-1 py-4 px-6 text-center font-semibold rounded-tr-2xl tab-inactive" onclick="trocarAba('relatorios')">
                     📊 Relatórios
                 </button>
@@ -42,7 +43,7 @@
 
         <!-- Aba Clientes -->
         <div id="abaClientes" class="aba-content">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <!-- Formulário de Cadastro de Cliente -->
                 <div class="bg-white rounded-2xl shadow-xl p-6">
                     <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
@@ -91,12 +92,121 @@
                         <span class="mr-2">📋</span> Clientes Cadastrados
                     </h2>
                     
+                    <!-- Campo de Busca -->
+                    <div class="mb-4">
+                        <div class="relative">
+                            <input type="text" id="buscaCliente" 
+                                   class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                   placeholder="🔍 Buscar por código ou nome...">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-400">🔍</span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div id="listaClientesCadastrados" class="space-y-3 max-h-96 overflow-y-auto">
                         <div class="text-center text-gray-500 py-8">
                             <span class="text-4xl mb-4 block">👥</span>
                             <p>Nenhum cliente cadastrado</p>
                             <p class="text-sm">Cadastre o primeiro cliente</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Busca Avançada de Cliente -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                    <span class="mr-2">🔍</span> Busca Avançada - Relatório Individual
+                </h2>
+                
+                <!-- Seletor de Cliente -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Selecione o Cliente</label>
+                    <select id="clienteBuscaSelect" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <option value="">Escolha um cliente para ver o relatório completo</option>
+                    </select>
+                </div>
+                
+                <!-- Filtros de Data -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data Inicial</label>
+                        <input type="date" id="dataInicial" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data Final</label>
+                        <input type="date" id="dataFinal" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                </div>
+                
+                <button onclick="gerarRelatorioCliente()" 
+                        class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                    📊 Gerar Relatório Individual
+                </button>
+            </div>
+            
+            <!-- Relatório do Cliente -->
+            <div id="relatorioCliente" class="hidden">
+                <!-- Cabeçalho do Relatório -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="nomeClienteRelatorio"></h3>
+                            <p class="text-gray-600" id="codigoClienteRelatorio"></p>
+                            <p class="text-sm text-gray-500" id="periodoRelatorio"></p>
+                        </div>
+                        <button onclick="imprimirRelatorio()" 
+                                class="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-all">
+                            🖨️ Imprimir
+                        </button>
+                    </div>
+                    
+                    <!-- Resumo Financeiro do Cliente -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <p class="text-green-600 text-sm font-medium">Total Entradas</p>
+                            <p class="text-2xl font-bold text-green-700" id="totalEntradasCliente">R$ 0,00</p>
+                        </div>
+                        <div class="bg-red-50 rounded-lg p-4 text-center">
+                            <p class="text-red-600 text-sm font-medium">Total Saídas</p>
+                            <p class="text-2xl font-bold text-red-700" id="totalSaidasCliente">R$ 0,00</p>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                            <p class="text-blue-600 text-sm font-medium">Saldo Final</p>
+                            <p class="text-2xl font-bold text-blue-700" id="saldoFinalCliente">R$ 0,00</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <p class="text-gray-600 text-sm font-medium">Total Transações</p>
+                            <p class="text-2xl font-bold text-gray-700" id="totalTransacoesCliente">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Histórico Detalhado -->
+                <div class="bg-white rounded-2xl shadow-xl p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">📋</span> Histórico Detalhado
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b">
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Data</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Tipo</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Descrição</th>
+                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Comprovante</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-700">Valor</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-700">Saldo Acumulado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historicoDetalhadoCliente">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -181,6 +291,18 @@
                         <span class="mr-2">👥</span> Saldo por Cliente
                     </h2>
                     
+                    <!-- Campo de Busca -->
+                    <div class="mb-4">
+                        <div class="relative">
+                            <input type="text" id="buscaClienteSaldo" 
+                                   class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                   placeholder="🔍 Buscar cliente...">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-400">🔍</span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div id="listaClientes" class="space-y-3 max-h-96 overflow-y-auto">
                         <div class="text-center text-gray-500 py-8">
                             <span class="text-4xl mb-4 block">📊</span>
@@ -191,6 +313,8 @@
                 </div>
             </div>
         </div>
+
+
 
         <!-- Aba Relatórios -->
         <div id="abaRelatorios" class="aba-content" style="display: none;">
@@ -238,6 +362,28 @@
                 <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
                     <span class="mr-2">📋</span> Histórico de Transações
                 </h2>
+                
+                <!-- Campo de Busca e Filtros -->
+                <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="relative">
+                        <input type="text" id="buscaHistorico" 
+                               class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="🔍 Buscar transações...">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-400">🔍</span>
+                        </div>
+                    </div>
+                    
+                    <select id="filtroTipo" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <option value="">Todos os tipos</option>
+                        <option value="entrada">💰 Entradas</option>
+                        <option value="saida">💸 Saídas</option>
+                    </select>
+                    
+                    <select id="filtroCliente" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <option value="">Todos os clientes</option>
+                    </select>
+                </div>
                 
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -300,6 +446,8 @@
             // Atualizar dados se necessário
             if (aba === 'transacoes') {
                 atualizarSelectClientes();
+            } else if (aba === 'clientes') {
+                atualizarSelectClientesBusca();
             }
         }
 
@@ -360,7 +508,7 @@
         }
 
         // Função para renderizar clientes cadastrados
-        function renderizarClientesCadastrados() {
+        function renderizarClientesCadastrados(filtro = '') {
             const lista = document.getElementById('listaClientesCadastrados');
             
             if (Object.keys(clientesCadastrados).length === 0) {
@@ -374,7 +522,28 @@
                 return;
             }
 
-            lista.innerHTML = Object.entries(clientesCadastrados).map(([codigo, dados]) => `
+            // Filtrar clientes
+            const clientesFiltrados = Object.entries(clientesCadastrados).filter(([codigo, dados]) => {
+                if (!filtro) return true;
+                const termoBusca = filtro.toLowerCase();
+                return codigo.toLowerCase().includes(termoBusca) || 
+                       dados.nome.toLowerCase().includes(termoBusca) ||
+                       (dados.email && dados.email.toLowerCase().includes(termoBusca)) ||
+                       (dados.telefone && dados.telefone.includes(termoBusca));
+            });
+
+            if (clientesFiltrados.length === 0) {
+                lista.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <span class="text-4xl mb-4 block">🔍</span>
+                        <p>Nenhum cliente encontrado</p>
+                        <p class="text-sm">Tente outro termo de busca</p>
+                    </div>
+                `;
+                return;
+            }
+
+            lista.innerHTML = clientesFiltrados.map(([codigo, dados]) => `
                 <div class="bg-gray-50 rounded-lg p-4 fade-in">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
@@ -443,7 +612,7 @@
         }
 
         // Função para renderizar lista de clientes
-        function renderizarListaClientes() {
+        function renderizarListaClientes(filtro = '') {
             const listaClientes = document.getElementById('listaClientes');
             
             if (Object.keys(clientes).length === 0) {
@@ -457,7 +626,28 @@
                 return;
             }
 
-            const clientesOrdenados = Object.entries(clientes).sort((a, b) => b[1].saldo - a[1].saldo);
+            // Filtrar clientes
+            let clientesFiltrados = Object.entries(clientes);
+            if (filtro) {
+                const termoBusca = filtro.toLowerCase();
+                clientesFiltrados = clientesFiltrados.filter(([codigo, dados]) => 
+                    codigo.toLowerCase().includes(termoBusca) || 
+                    dados.nome.toLowerCase().includes(termoBusca)
+                );
+            }
+
+            if (clientesFiltrados.length === 0) {
+                listaClientes.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <span class="text-4xl mb-4 block">🔍</span>
+                        <p>Nenhum cliente encontrado</p>
+                        <p class="text-sm">Tente outro termo de busca</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const clientesOrdenados = clientesFiltrados.sort((a, b) => b[1].saldo - a[1].saldo);
             
             listaClientes.innerHTML = clientesOrdenados.map(([codigo, dados]) => `
                 <div class="bg-gray-50 rounded-lg p-4 fade-in">
@@ -573,7 +763,7 @@
         }
 
         // Função para renderizar histórico
-        function renderizarHistorico() {
+        function renderizarHistorico(filtros = {}) {
             const historicoTransacoes = document.getElementById('historicoTransacoes');
             
             if (transacoes.length === 0) {
@@ -589,7 +779,47 @@
                 return;
             }
 
-            const transacoesOrdenadas = [...transacoes].reverse();
+            // Aplicar filtros
+            let transacoesFiltradas = [...transacoes];
+            
+            // Filtro por busca
+            if (filtros.busca) {
+                const termoBusca = filtros.busca.toLowerCase();
+                transacoesFiltradas = transacoesFiltradas.filter(transacao => {
+                    const clienteInfo = clientesCadastrados[transacao.codigoCliente];
+                    const nomeCliente = clienteInfo ? clienteInfo.nome : transacao.nomeCliente || '';
+                    
+                    return transacao.codigoCliente.toLowerCase().includes(termoBusca) ||
+                           nomeCliente.toLowerCase().includes(termoBusca) ||
+                           transacao.descricao.toLowerCase().includes(termoBusca) ||
+                           transacao.data.includes(termoBusca);
+                });
+            }
+            
+            // Filtro por tipo
+            if (filtros.tipo) {
+                transacoesFiltradas = transacoesFiltradas.filter(transacao => transacao.tipo === filtros.tipo);
+            }
+            
+            // Filtro por cliente
+            if (filtros.cliente) {
+                transacoesFiltradas = transacoesFiltradas.filter(transacao => transacao.codigoCliente === filtros.cliente);
+            }
+
+            if (transacoesFiltradas.length === 0) {
+                historicoTransacoes.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-gray-500">
+                            <span class="text-4xl mb-4 block">🔍</span>
+                            <p>Nenhuma transação encontrada</p>
+                            <p class="text-sm">Tente ajustar os filtros de busca</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const transacoesOrdenadas = transacoesFiltradas.reverse();
             
             historicoTransacoes.innerHTML = transacoesOrdenadas.map(transacao => {
                 const clienteInfo = clientesCadastrados[transacao.codigoCliente];
@@ -626,6 +856,19 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        // Função para atualizar filtro de clientes no histórico
+        function atualizarFiltroClientes() {
+            const filtroCliente = document.getElementById('filtroCliente');
+            filtroCliente.innerHTML = '<option value="">Todos os clientes</option>';
+            
+            Object.entries(clientesCadastrados).forEach(([codigo, dados]) => {
+                const option = document.createElement('option');
+                option.value = codigo;
+                option.textContent = `${codigo} - ${dados.nome}`;
+                filtroCliente.appendChild(option);
+            });
         }
 
         function visualizarComprovante(comprovanteId) {
@@ -685,6 +928,36 @@
             removerArquivo();
         }
 
+        // Event listeners para busca
+        document.getElementById('buscaCliente').addEventListener('input', function(e) {
+            renderizarClientesCadastrados(e.target.value);
+        });
+
+        document.getElementById('buscaClienteSaldo').addEventListener('input', function(e) {
+            renderizarListaClientes(e.target.value);
+        });
+
+        document.getElementById('buscaHistorico').addEventListener('input', function(e) {
+            aplicarFiltrosHistorico();
+        });
+
+        document.getElementById('filtroTipo').addEventListener('change', function(e) {
+            aplicarFiltrosHistorico();
+        });
+
+        document.getElementById('filtroCliente').addEventListener('change', function(e) {
+            aplicarFiltrosHistorico();
+        });
+
+        function aplicarFiltrosHistorico() {
+            const filtros = {
+                busca: document.getElementById('buscaHistorico').value,
+                tipo: document.getElementById('filtroTipo').value,
+                cliente: document.getElementById('filtroCliente').value
+            };
+            renderizarHistorico(filtros);
+        }
+
         // Event listeners
         document.getElementById('clienteForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -698,6 +971,9 @@
                 if (cadastrarCliente(codigo, nome, email, telefone)) {
                     // Limpar formulário
                     this.reset();
+                    
+                    // Atualizar filtros
+                    atualizarFiltroClientes();
                     
                     // Feedback visual
                     const button = this.querySelector('button');
@@ -757,13 +1033,400 @@
             // Renderizar dados
             renderizarClientesCadastrados();
             atualizarSelectClientes();
+            atualizarFiltroClientes();
             calcularTotais();
             atualizarSaldosClientes();
             renderizarHistorico();
         }
 
+        // Função para atualizar select de clientes na busca
+        function atualizarSelectClientesBusca() {
+            const select = document.getElementById('clienteBuscaSelect');
+            select.innerHTML = '<option value="">Escolha um cliente para ver o relatório completo</option>';
+            
+            Object.entries(clientesCadastrados).forEach(([codigo, dados]) => {
+                const option = document.createElement('option');
+                option.value = codigo;
+                option.textContent = `${codigo} - ${dados.nome}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Função para gerar relatório do cliente
+        function gerarRelatorioCliente() {
+            const codigoCliente = document.getElementById('clienteBuscaSelect').value;
+            const dataInicial = document.getElementById('dataInicial').value;
+            const dataFinal = document.getElementById('dataFinal').value;
+            
+            if (!codigoCliente) {
+                alert('Por favor, selecione um cliente!');
+                return;
+            }
+            
+            const clienteInfo = clientesCadastrados[codigoCliente];
+            if (!clienteInfo) {
+                alert('Cliente não encontrado!');
+                return;
+            }
+            
+            // Filtrar transações do cliente
+            let transacoesCliente = transacoes.filter(t => t.codigoCliente === codigoCliente);
+            
+            // Aplicar filtro de data se especificado
+            if (dataInicial) {
+                transacoesCliente = transacoesCliente.filter(t => t.data >= dataInicial);
+            }
+            if (dataFinal) {
+                transacoesCliente = transacoesCliente.filter(t => t.data <= dataFinal);
+            }
+            
+            // Ordenar por data
+            transacoesCliente.sort((a, b) => new Date(a.data) - new Date(b.data));
+            
+            // Calcular totais
+            let totalEntradas = 0;
+            let totalSaidas = 0;
+            let saldoAcumulado = 0;
+            
+            transacoesCliente.forEach(transacao => {
+                if (transacao.tipo === 'entrada') {
+                    totalEntradas += transacao.valor;
+                    saldoAcumulado += transacao.valor;
+                } else {
+                    totalSaidas += transacao.valor;
+                    saldoAcumulado -= transacao.valor;
+                }
+            });
+            
+            // Atualizar cabeçalho do relatório
+            document.getElementById('nomeClienteRelatorio').textContent = clienteInfo.nome;
+            document.getElementById('codigoClienteRelatorio').textContent = `Código: ${codigoCliente}`;
+            
+            let periodoTexto = 'Período: Todas as transações';
+            if (dataInicial && dataFinal) {
+                periodoTexto = `Período: ${new Date(dataInicial).toLocaleDateString('pt-BR')} a ${new Date(dataFinal).toLocaleDateString('pt-BR')}`;
+            } else if (dataInicial) {
+                periodoTexto = `Período: A partir de ${new Date(dataInicial).toLocaleDateString('pt-BR')}`;
+            } else if (dataFinal) {
+                periodoTexto = `Período: Até ${new Date(dataFinal).toLocaleDateString('pt-BR')}`;
+            }
+            document.getElementById('periodoRelatorio').textContent = periodoTexto;
+            
+            // Atualizar resumo financeiro
+            document.getElementById('totalEntradasCliente').textContent = formatarMoeda(totalEntradas);
+            document.getElementById('totalSaidasCliente').textContent = formatarMoeda(totalSaidas);
+            document.getElementById('saldoFinalCliente').textContent = formatarMoeda(saldoAcumulado);
+            document.getElementById('totalTransacoesCliente').textContent = transacoesCliente.length;
+            
+            // Atualizar cor do saldo
+            const saldoElement = document.getElementById('saldoFinalCliente');
+            if (saldoAcumulado >= 0) {
+                saldoElement.className = 'text-2xl font-bold text-green-700';
+            } else {
+                saldoElement.className = 'text-2xl font-bold text-red-700';
+            }
+            
+            // Gerar histórico detalhado
+            const historicoDetalhado = document.getElementById('historicoDetalhadoCliente');
+            
+            if (transacoesCliente.length === 0) {
+                historicoDetalhado.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            <span class="text-4xl mb-4 block">📝</span>
+                            <p>Nenhuma transação encontrada para este período</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                let saldoCorrente = 0;
+                historicoDetalhado.innerHTML = transacoesCliente.map(transacao => {
+                    if (transacao.tipo === 'entrada') {
+                        saldoCorrente += transacao.valor;
+                    } else {
+                        saldoCorrente -= transacao.valor;
+                    }
+                    
+                    return `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4 text-sm text-gray-600">${new Date(transacao.data).toLocaleDateString('pt-BR')}</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2 py-1 rounded-full text-xs font-medium ${
+                                    transacao.tipo === 'entrada' 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-red-100 text-red-800'
+                                }">
+                                    ${transacao.tipo === 'entrada' ? '💰 Entrada' : '💸 Saída'}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-gray-700">${transacao.descricao}</td>
+                            <td class="py-3 px-4 text-center">
+                                ${transacao.comprovante ? 
+                                    `<button onclick="visualizarComprovante('${transacao.comprovante}')" class="text-blue-600 hover:text-blue-800">
+                                        📎 Ver
+                                    </button>` : 
+                                    '<span class="text-gray-400">-</span>'
+                                }
+                            </td>
+                            <td class="py-3 px-4 text-right font-semibold ${
+                                transacao.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'
+                            }">
+                                ${transacao.tipo === 'entrada' ? '+' : '-'} ${formatarMoeda(transacao.valor)}
+                            </td>
+                            <td class="py-3 px-4 text-right font-bold ${
+                                saldoCorrente >= 0 ? 'text-blue-600' : 'text-red-600'
+                            }">
+                                ${formatarMoeda(saldoCorrente)}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            // Mostrar o relatório
+            document.getElementById('relatorioCliente').classList.remove('hidden');
+            
+            // Scroll para o relatório
+            document.getElementById('relatorioCliente').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Função para imprimir relatório
+        function imprimirRelatorio() {
+            const codigoCliente = document.getElementById('clienteBuscaSelect').value;
+            const clienteInfo = clientesCadastrados[codigoCliente];
+            
+            if (!clienteInfo) {
+                alert('Nenhum cliente selecionado para impressão!');
+                return;
+            }
+            
+            // Obter dados do relatório
+            const nomeCliente = document.getElementById('nomeClienteRelatorio').textContent;
+            const codigoClienteTexto = document.getElementById('codigoClienteRelatorio').textContent;
+            const periodoTexto = document.getElementById('periodoRelatorio').textContent;
+            const totalEntradas = document.getElementById('totalEntradasCliente').textContent;
+            const totalSaidas = document.getElementById('totalSaidasCliente').textContent;
+            const saldoFinal = document.getElementById('saldoFinalCliente').textContent;
+            const totalTransacoes = document.getElementById('totalTransacoesCliente').textContent;
+            
+            // Obter histórico detalhado
+            const historicoTabela = document.getElementById('historicoDetalhadoCliente');
+            let historicoHTML = '';
+            
+            if (historicoTabela.children.length > 0) {
+                Array.from(historicoTabela.children).forEach(row => {
+                    if (row.children.length >= 6) {
+                        const data = row.children[0].textContent;
+                        const tipo = row.children[1].textContent.replace('💰', '').replace('💸', '').trim();
+                        const descricao = row.children[2].textContent;
+                        const comprovante = row.children[3].textContent.includes('Ver') ? 'Sim' : 'Não';
+                        const valor = row.children[4].textContent;
+                        const saldoAcumulado = row.children[5].textContent;
+                        
+                        historicoHTML += `
+                            <tr>
+                                <td>${data}</td>
+                                <td>${tipo}</td>
+                                <td>${descricao}</td>
+                                <td style="text-align: center;">${comprovante}</td>
+                                <td style="text-align: right;">${valor}</td>
+                                <td style="text-align: right; font-weight: bold;">${saldoAcumulado}</td>
+                            </tr>
+                        `;
+                    }
+                });
+            }
+            
+            if (!historicoHTML) {
+                historicoHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Nenhuma transação encontrada para este período</td></tr>';
+            }
+            
+            // Criar conteúdo para impressão
+            const conteudoImpressao = `
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Relatório Financeiro - ${nomeCliente}</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { 
+                            font-family: 'Arial', sans-serif; 
+                            line-height: 1.4; 
+                            color: #333; 
+                            padding: 20px;
+                            background: white;
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 30px; 
+                            border-bottom: 2px solid #333;
+                            padding-bottom: 20px;
+                        }
+                        .header h1 { 
+                            font-size: 24px; 
+                            margin-bottom: 10px; 
+                            color: #2563eb;
+                        }
+                        .header p { 
+                            font-size: 14px; 
+                            color: #666; 
+                        }
+                        .resumo { 
+                            display: grid; 
+                            grid-template-columns: repeat(4, 1fr); 
+                            gap: 15px; 
+                            margin-bottom: 30px; 
+                        }
+                        .resumo-item { 
+                            border: 1px solid #ddd; 
+                            padding: 15px; 
+                            text-align: center; 
+                            border-radius: 8px;
+                            background: #f9f9f9;
+                        }
+                        .resumo-item h3 { 
+                            font-size: 12px; 
+                            color: #666; 
+                            margin-bottom: 8px; 
+                            text-transform: uppercase;
+                        }
+                        .resumo-item p { 
+                            font-size: 18px; 
+                            font-weight: bold; 
+                        }
+                        .entradas { color: #16a34a; }
+                        .saidas { color: #dc2626; }
+                        .saldo { color: #2563eb; }
+                        .transacoes { color: #374151; }
+                        .historico { margin-top: 30px; }
+                        .historico h2 { 
+                            font-size: 18px; 
+                            margin-bottom: 15px; 
+                            color: #333;
+                            border-bottom: 1px solid #ddd;
+                            padding-bottom: 10px;
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            font-size: 12px;
+                        }
+                        th, td { 
+                            border: 1px solid #ddd; 
+                            padding: 8px; 
+                            text-align: left; 
+                        }
+                        th { 
+                            background-color: #f5f5f5; 
+                            font-weight: bold; 
+                            color: #333;
+                        }
+                        tr:nth-child(even) { 
+                            background-color: #f9f9f9; 
+                        }
+                        .entrada-valor { color: #16a34a; font-weight: bold; }
+                        .saida-valor { color: #dc2626; font-weight: bold; }
+                        .saldo-positivo { color: #2563eb; font-weight: bold; }
+                        .saldo-negativo { color: #dc2626; font-weight: bold; }
+                        .footer { 
+                            margin-top: 30px; 
+                            text-align: center; 
+                            font-size: 10px; 
+                            color: #666;
+                            border-top: 1px solid #ddd;
+                            padding-top: 15px;
+                        }
+                        @media print {
+                            body { padding: 10px; }
+                            .resumo { grid-template-columns: repeat(2, 1fr); }
+                            table { font-size: 10px; }
+                            th, td { padding: 6px; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>💰 Relatório Financeiro Individual</h1>
+                        <h2>${nomeCliente}</h2>
+                        <p>${codigoClienteTexto}</p>
+                        <p>${periodoTexto}</p>
+                        <p>Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+                    </div>
+                    
+                    <div class="resumo">
+                        <div class="resumo-item">
+                            <h3>Total Entradas</h3>
+                            <p class="entradas">${totalEntradas}</p>
+                        </div>
+                        <div class="resumo-item">
+                            <h3>Total Saídas</h3>
+                            <p class="saidas">${totalSaidas}</p>
+                        </div>
+                        <div class="resumo-item">
+                            <h3>Saldo Final</h3>
+                            <p class="saldo">${saldoFinal}</p>
+                        </div>
+                        <div class="resumo-item">
+                            <h3>Total Transações</h3>
+                            <p class="transacoes">${totalTransacoes}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="historico">
+                        <h2>📋 Histórico Detalhado com Saldo Acumulado</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Descrição</th>
+                                    <th style="text-align: center;">Comprovante</th>
+                                    <th style="text-align: right;">Valor</th>
+                                    <th style="text-align: right;">Saldo Acumulado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${historicoHTML}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Relatório gerado automaticamente pelo Sistema de Controle de Pagamentos</p>
+                        <p>Este documento contém informações confidenciais</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Abrir nova janela e imprimir
+            const janelaImpressao = window.open('', '_blank', 'width=800,height=600');
+            
+            if (janelaImpressao) {
+                janelaImpressao.document.write(conteudoImpressao);
+                janelaImpressao.document.close();
+                
+                // Aguardar carregamento e imprimir
+                janelaImpressao.onload = function() {
+                    setTimeout(() => {
+                        janelaImpressao.focus();
+                        janelaImpressao.print();
+                        
+                        // Fechar janela após impressão (opcional)
+                        janelaImpressao.onafterprint = function() {
+                            janelaImpressao.close();
+                        };
+                    }, 500);
+                };
+            } else {
+                alert('Não foi possível abrir a janela de impressão. Verifique se o bloqueador de pop-ups está desabilitado.');
+            }
+        }
+
         // Carregar dados ao iniciar
         inicializar();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9794fe4af3acef81',t:'MTc1Njg5OTg0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9797080f02bcef81',t:'MTc1NjkyMTIxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
